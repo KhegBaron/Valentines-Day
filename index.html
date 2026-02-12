@@ -1,0 +1,173 @@
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+
+// ----
+// Put your files in /public so they load in the browser, then set these paths.
+// Example:
+//   public/alicia-call.jpg
+//   public/alicia-call.mov
+// ----
+const SURPRISE_IMAGE_SRC = "/alicia-call.jpg";
+const SURPRISE_VIDEO_SRC = "/alicia-call.mov";
+
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomOffset() {
+  // keeps the button within a reasonable distance
+  return { x: rand(-140, 140), y: rand(-70, 70) };
+}
+
+export default function ValentinesApp() {
+  const [step, setStep] = useState(1);
+  const [showSurprise, setShowSurprise] = useState(false);
+
+  // step 1 positions
+  const [nonePos, setNonePos] = useState({ x: 0, y: 0 });
+  const [littlePos, setLittlePos] = useState({ x: 0, y: 0 });
+
+  // step 2 position
+  const [noPos, setNoPos] = useState({ x: 0, y: 0 });
+
+  const heartEmojis = useMemo(() => ["❤️", "💗", "💞", "💘"], []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-pink-100 p-6">
+      <div className="bg-white shadow-xl rounded-2xl p-10 text-center max-w-md w-full relative overflow-hidden">
+        {step === 1 && (
+          <>
+            <h1 className="text-2xl font-semibold mb-6">
+              Alicia, how much do you love Yog?
+            </h1>
+
+            <div className="flex flex-col gap-4 items-center">
+              <motion.div
+                animate={nonePos}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              >
+                <Button
+                  variant="destructive"
+                  onMouseEnter={() => setNonePos(randomOffset())}
+                >
+                  None
+                </Button>
+              </motion.div>
+
+              <Button
+                className="bg-pink-500 hover:bg-pink-600 text-white"
+                onClick={() => setStep(2)}
+              >
+                A lot
+              </Button>
+
+              <motion.div
+                animate={littlePos}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              >
+                <Button
+                  variant="secondary"
+                  onMouseEnter={() => setLittlePos(randomOffset())}
+                >
+                  A little bit
+                </Button>
+              </motion.div>
+            </div>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <h1 className="text-2xl font-semibold mb-6">
+              Alicia, will you be my Valentine?
+            </h1>
+
+            <div className="relative h-44 flex items-center justify-center">
+              <Button
+                className="bg-red-500 hover:bg-red-600 text-white text-lg px-10 py-5 rounded-2xl shadow-md"
+                onClick={() => setShowSurprise(true)}
+              >
+                YES {heartEmojis[0]}
+              </Button>
+
+              <motion.div
+                className="absolute"
+                animate={noPos}
+                transition={{ type: "spring", stiffness: 600, damping: 20 }}
+              >
+                <Button
+                  className="text-[10px] px-2 py-1 h-6 rounded-md"
+                  variant="outline"
+                  onMouseEnter={() => setNoPos(randomOffset())}
+                >
+                  no
+                </Button>
+              </motion.div>
+            </div>
+          </>
+        )}
+
+        <AnimatePresence>
+          {showSurprise && (
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
+                initial={{ scale: 0.95, y: 10, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.98, y: 10, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              >
+                <div className="p-4 flex items-center justify-between">
+                  <div className="text-left">
+                    <div className="text-lg font-semibold">Yesss!!</div>
+                    <div className="text-sm text-muted-foreground">
+                      {heartEmojis.join(" ")}
+                    </div>
+                  </div>
+                  <Button variant="ghost" onClick={() => setShowSurprise(false)}>
+                    Close
+                  </Button>
+                </div>
+
+                <div className="px-4 pb-4">
+                  <div className="rounded-xl overflow-hidden border">
+                    <img
+                      src={SURPRISE_IMAGE_SRC}
+                      alt="Alicia call screenshot"
+                      className="w-full h-auto"
+                    />
+                  </div>
+
+                  <div className="mt-4 rounded-xl overflow-hidden border">
+                    <video
+                      src={SURPRISE_VIDEO_SRC}
+                      className="w-full"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  </div>
+
+                  <div className="mt-4 text-sm text-muted-foreground text-left">
+                    If the image/video don’t load: make sure the files are in your app’s
+                    <span className="font-medium"> /public </span>
+                    folder and the names match:
+                    <span className="font-medium"> alicia-call.jpg </span>
+                    and
+                    <span className="font-medium"> alicia-call.mov</span>.
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
