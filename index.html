@@ -1,173 +1,317 @@
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Valentine?</title>
+    <style>
+      :root {
+        --pink: #ff4d88;
+        --red: #ef4444;
+        --bg: #ffe4ef;
+      }
 
-// ----
-// Put your files in /public so they load in the browser, then set these paths.
-// Example:
-//   public/alicia-call.png
-//   public/alicia-call.mov
-// ----
-const SURPRISE_IMAGE_SRC = "/alicia-call.jpg";
-const SURPRISE_VIDEO_SRC = "/alicia-call.mov";
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: var(--bg);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
 
-function rand(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+      .card {
+        width: min(520px, 92vw);
+        background: white;
+        border-radius: 22px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        padding: 32px 22px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-function randomOffset() {
-  // keeps the button within a reasonable distance
-  return { x: rand(-140, 140), y: rand(-70, 70) };
-}
+      h1 {
+        margin: 0 0 18px;
+        font-size: 22px;
+        font-weight: 700;
+      }
 
-export default function ValentinesApp() {
-  const [step, setStep] = useState(1);
-  const [showSurprise, setShowSurprise] = useState(false);
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        align-items: center;
+        margin-top: 14px;
+      }
 
-  // step 1 positions
-  const [nonePos, setNonePos] = useState({ x: 0, y: 0 });
-  const [littlePos, setLittlePos] = useState({ x: 0, y: 0 });
+      button {
+        border: none;
+        cursor: pointer;
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-weight: 650;
+        font-size: 14px;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+        user-select: none;
+      }
 
-  // step 2 position
-  const [noPos, setNoPos] = useState({ x: 0, y: 0 });
+      button:active {
+        transform: translateY(1px) scale(0.99);
+      }
 
-  const heartEmojis = useMemo(() => ["❤️", "💗", "💞", "💘"], []);
+      .btn-pink {
+        background: var(--pink);
+        color: white;
+      }
+      .btn-red {
+        background: var(--red);
+        color: white;
+      }
+      .btn-gray {
+        background: #f1f5f9;
+        color: #111827;
+      }
+      .btn-dark {
+        background: #111827;
+        color: white;
+      }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-100 p-6">
-      <div className="bg-white shadow-xl rounded-2xl p-10 text-center max-w-md w-full relative overflow-hidden">
-        {step === 1 && (
-          <>
-            <h1 className="text-2xl font-semibold mb-6">
-              Alicia, how much do you love Yog?
-            </h1>
+      /* Step 2 layout */
+      .arena {
+        position: relative;
+        height: 190px;
+        display: grid;
+        place-items: center;
+        margin-top: 10px;
+      }
 
-            <div className="flex flex-col gap-4 items-center">
-              <motion.div
-                animate={nonePos}
-                transition={{ type: "spring", stiffness: 500, damping: 20 }}
-              >
-                <Button
-                  variant="destructive"
-                  onMouseEnter={() => setNonePos(randomOffset())}
-                >
-                  None
-                </Button>
-              </motion.div>
+      .yes {
+        font-size: 18px;
+        padding: 16px 28px;
+        border-radius: 18px;
+      }
 
-              <Button
-                className="bg-pink-500 hover:bg-pink-600 text-white"
-                onClick={() => setStep(2)}
-              >
-                A lot
-              </Button>
+      .tiny-no {
+        position: absolute;
+        font-size: 10px;
+        padding: 6px 8px;
+        border-radius: 10px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 16px rgba(0, 0, 0, 0.08);
+      }
 
-              <motion.div
-                animate={littlePos}
-                transition={{ type: "spring", stiffness: 500, damping: 20 }}
-              >
-                <Button
-                  variant="secondary"
-                  onMouseEnter={() => setLittlePos(randomOffset())}
-                >
-                  A little bit
-                </Button>
-              </motion.div>
-            </div>
-          </>
-        )}
+      /* overlay */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        z-index: 50;
+      }
+      .modal {
+        width: min(720px, 96vw);
+        background: white;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+        transform: scale(0.98);
+        opacity: 0;
+        transition: transform 180ms ease, opacity 180ms ease;
+      }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+      }
+      .modal-title {
+        text-align: left;
+      }
+      .modal-title .big {
+        font-weight: 800;
+        font-size: 18px;
+        margin-bottom: 2px;
+      }
+      .modal-title .small {
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .modal-body {
+        padding: 0 16px 16px;
+      }
+      .media-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      video {
+        width: 100%;
+        display: block;
+      }
 
-        {step === 2 && (
-          <>
-            <h1 className="text-2xl font-semibold mb-6">
-              Alicia, will you be my Valentine?
-            </h1>
+      .note {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #6b7280;
+        text-align: left;
+      }
+    </style>
+  </head>
 
-            <div className="relative h-44 flex items-center justify-center">
-              <Button
-                className="bg-red-500 hover:bg-red-600 text-white text-lg px-10 py-5 rounded-2xl shadow-md"
-                onClick={() => setShowSurprise(true)}
-              >
-                YES {heartEmojis[0]}
-              </Button>
+  <body>
+    <div class="card">
+      <!-- STEP 1 -->
+      <div id="step1">
+        <h1>Alicia, how much do you love Yog?</h1>
+        <div class="stack">
+          <button id="noneBtn" class="btn-dark">None</button>
+          <button id="alotBtn" class="btn-pink">A lot</button>
+          <button id="littleBtn" class="btn-gray">A little bit</button>
+        </div>
+      </div>
 
-              <motion.div
-                className="absolute"
-                animate={noPos}
-                transition={{ type: "spring", stiffness: 600, damping: 20 }}
-              >
-                <Button
-                  className="text-[10px] px-2 py-1 h-6 rounded-md"
-                  variant="outline"
-                  onMouseEnter={() => setNoPos(randomOffset())}
-                >
-                  no
-                </Button>
-              </motion.div>
-            </div>
-          </>
-        )}
-
-        <AnimatePresence>
-          {showSurprise && (
-            <motion.div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden"
-                initial={{ scale: 0.95, y: 10, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.98, y: 10, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              >
-                <div className="p-4 flex items-center justify-between">
-                  <div className="text-left">
-                    <div className="text-lg font-semibold">Yesss!!</div>
-                    <div className="text-sm text-muted-foreground">
-                      {heartEmojis.join(" ")}
-                    </div>
-                  </div>
-                  <Button variant="ghost" onClick={() => setShowSurprise(false)}>
-                    Close
-                  </Button>
-                </div>
-
-                <div className="px-4 pb-4">
-                  <div className="rounded-xl overflow-hidden border">
-                    <img
-                      src={SURPRISE_IMAGE_SRC}
-                      alt="Alicia call screenshot"
-                      className="w-full h-auto"
-                    />
-                  </div>
-
-                  <div className="mt-4 rounded-xl overflow-hidden border">
-                    <video
-                      src={SURPRISE_VIDEO_SRC}
-                      className="w-full"
-                      controls
-                      autoPlay
-                      playsInline
-                    />
-                  </div>
-
-                  <div className="mt-4 text-sm text-muted-foreground text-left">
-                    If the image/video don’t load: make sure the files are in your app’s
-                    <span className="font-medium"> /public </span>
-                    folder and the names match:
-                    <span className="font-medium"> alicia-call.jpg </span>
-                    and
-                    <span className="font-medium"> alicia-call.mov</span>.
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <!-- STEP 2 -->
+      <div id="step2" style="display:none;">
+        <h1>Alicia, will you be my Valentine?</h1>
+        <div class="arena" id="arena">
+          <button id="yesBtn" class="btn-red yes">YES ❤️</button>
+          <button id="noBtn" class="tiny-no">no</button>
+        </div>
       </div>
     </div>
-  );
-}
+
+    <!-- SURPRISE OVERLAY -->
+    <div class="overlay" id="overlay">
+      <div class="modal" id="modal">
+        <div class="modal-header">
+          <div class="modal-title">
+            <div class="big">Yesss!!</div>
+            <div class="small">❤️ 💗 💞 💘</div>
+          </div>
+          <button id="closeBtn" class="btn-gray" style="box-shadow:none;">Close</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="media-box">
+            <!-- change filenames here if yours are different -->
+            <img src="alicia-call.png" alt="Alicia call screenshot" />
+          </div>
+
+          <div class="media-box">
+            <!-- RECOMMENDED: use mp4 -->
+            <video id="surpriseVideo" src="alicia-call.mov" controls autoplay playsinline></video>
+          </div>
+
+          <div class="note">
+            If the video doesn’t play, make sure the filename matches exactly (including .mp4 vs .mov).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ---- helpers ----
+      function rand(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // Move a button away within the card bounds
+      function jumpButton(btn, container, maxX, maxY) {
+        const rect = container.getBoundingClientRect();
+        const b = btn.getBoundingClientRect();
+
+        // random translate offsets
+        let x = rand(-maxX, maxX);
+        let y = rand(-maxY, maxY);
+
+        // apply and then clamp by adjusting if it escapes
+        btn.style.transform = `translate(${x}px, ${y}px)`;
+
+        // after transform, we can't easily measure real position without layout,
+        // but for this playful app it's fine. If you want strict bounds, say so.
+      }
+
+      // ---- Step controls ----
+      const step1 = document.getElementById("step1");
+      const step2 = document.getElementById("step2");
+
+      const noneBtn = document.getElementById("noneBtn");
+      const littleBtn = document.getElementById("littleBtn");
+      const alotBtn = document.getElementById("alotBtn");
+
+      const arena = document.getElementById("arena");
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+
+      // Move-away behavior (Step 1)
+      noneBtn.addEventListener("mouseenter", () => jumpButton(noneBtn, step1, 140, 60));
+      littleBtn.addEventListener("mouseenter", () => jumpButton(littleBtn, step1, 140, 60));
+
+      // Only "A lot" advances
+      alotBtn.addEventListener("click", () => {
+        step1.style.display = "none";
+        step2.style.display = "block";
+
+        // place the tiny no somewhere to start
+        noBtn.style.left = rand(10, arena.clientWidth - 50) + "px";
+        noBtn.style.top = rand(10, arena.clientHeight - 30) + "px";
+      });
+
+      // Move-away behavior (Step 2)
+      function moveNo() {
+        noBtn.style.left = rand(10, arena.clientWidth - 50) + "px";
+        noBtn.style.top = rand(10, arena.clientHeight - 30) + "px";
+      }
+      noBtn.addEventListener("mouseenter", moveNo);
+      noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNo(); }, { passive: false });
+
+      // ---- Surprise overlay ----
+      const overlay = document.getElementById("overlay");
+      const modal = document.getElementById("modal");
+      const closeBtn = document.getElementById("closeBtn");
+      const surpriseVideo = document.getElementById("surpriseVideo");
+
+      function openOverlay() {
+        overlay.style.display = "flex";
+        requestAnimationFrame(() => {
+          modal.style.opacity = "1";
+          modal.style.transform = "scale(1)";
+        });
+        // try to play (autoplay may be blocked until user interacts — but YES click counts)
+        if (surpriseVideo) surpriseVideo.play().catch(() => {});
+      }
+
+      function closeOverlay() {
+        modal.style.opacity = "0";
+        modal.style.transform = "scale(0.98)";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          if (surpriseVideo) {
+            surpriseVideo.pause();
+            surpriseVideo.currentTime = 0;
+          }
+        }, 180);
+      }
+
+      yesBtn.addEventListener("click", openOverlay);
+      closeBtn.addEventListener("click", closeOverlay);
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeOverlay();
+      });
+    </script>
+  </body>
+</html>
